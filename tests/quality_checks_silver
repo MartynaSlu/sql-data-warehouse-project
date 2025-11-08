@@ -254,10 +254,27 @@ FROM silver.erp_cust_az12;
 -- Checking 'silver.erp_loc_a101'
 -- ====================================================================
 -- Data Standardization & Consistency
+INSERT INTO silver.erp_loc_a101(cid, cntry)
+SELECT 
+REPLACE(cid, '-','') cid,
+CASE WHEN TRIM(cntry) = 'DE' THEN 'Germany'
+	WHEN TRIM(cntry) IN ('US', 'USA') THEN 'United States'
+	WHEN TRIM(cntry) = '' OR cntry IS NULL THEN 'n/a'
+	else TRIM(cntry)
+END AS cntry  -- NORMALIZE AND HANDLE MISSING OR BLANK COUNTRY CODES
+FROM bronze.erp_loc_a101;
+
+-- data standardization & consistency
 SELECT DISTINCT 
-    cntry 
-FROM silver.erp_loc_a101
-ORDER BY cntry;
+cntry
+FROM bronze.erp_loc_a101;
+
+-- quality check of the silver table
+SELECT DISTINCT 
+cntry
+FROM silver.erp_loc_a101;
+
+SELECT * FROM silver.erp_loc_a101;
 
 -- ====================================================================
 -- Checking 'silver.erp_px_cat_g1v2'
